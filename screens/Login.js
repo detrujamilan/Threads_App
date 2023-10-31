@@ -17,10 +17,10 @@ const Login = () => {
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    if(!email || !password) {
+    if (!email || !password) {
       alert("Please enter all required fields");
     }
-  }
+  };
   return (
     <SafeAreaView className="flex-1 items-center">
       <View className="mt-20">
@@ -77,7 +77,10 @@ const Login = () => {
             <Text className="text-[#007FFF] font-medium"> Forgot Password</Text>
           </View>
           <View className="mt-12">
-            <Pressable className="w-[200px] bg-black flex m-auto p-[15px] rounded-md" onPress={handleLogin}>
+            <Pressable
+              className="w-[200px] bg-black flex m-auto p-[15px] rounded-md"
+              onPress={handleLogin}
+            >
               <Text className="text-white text-center text-base">Login In</Text>
             </Pressable>
             <Pressable

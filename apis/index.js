@@ -33,5 +33,102 @@ mongoose
   });
 
 app.listen(port, () => {
-    console.log("port connected");
+  console.log(`port connected ${port}`);
+});
+
+const User = require("./models/user");
+const Post = require("./models/post");
+
+app.post("/register", async (req, res) => {
+  debugger;
+  try {
+    const { name, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "user already exists" });
+    }
+
+    const newUser = new User({
+      name,
+      email,
+      password,
+    });
+
+    newUser.verificationToken = crypto.randomBytes(20).toString("hex");
+
+    await newUser.save();
+
+    // send the verification user email
+    sendVerificationEmail(newUser.email, newUser.verificationToken);
+
+    res.status(201).json({ message: "user registered successfully" });
+  } catch (error) {
+    console.log("error registering user", error);
+    res.status(500).json({ message: "error registering user" });
+  }
+});
+
+const sendVerificationEmail = async (email, verificationToken) => {
+  // create nodemail transport
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "milandetruja2@gmail.com",
+      pass: "mlgz nhkb aium gcnd",
+    },
+  });
+
+  const mailOptions = {
+    form: "thre.app",
+    to: email,
+    subject: "Email Verification",
+    text: `Please clike the following  link to verify your email http://localhost:3000/verify/${verificationToken}`,
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.log("error sending meassage", error);
+  }
+};
+
+app.get("/verify/:token", async () => {
+  try {
+    const token = req.params.token;
+
+    const user = await User.findOne({
+      verificationToken: token,
+    });
+    if (!user) {
+      return res.status(400).json({ message: "invalid token" });
+    }
+    user.verified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    res.status(200).json({ message: "email verified" });
+  } catch (error) {
+    console.log("error getting token", error);
+    res.status(500).json({ message: "email verification failed" });
+  }
+});
+
+app.post("/login", (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid Email" });
+    }
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Invalid Password" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, secretKey);
+    return res.status(200).json({ token });
+  } catch (error) {
+    console.log("login failed ", error);
+  }
 });
