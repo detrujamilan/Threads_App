@@ -6,10 +6,13 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
+  ToastAndroid,
 } from "react-native";
 import React, { useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { baseUrl } from "../utils/utils";
+import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,8 +21,25 @@ const Login = () => {
 
   const handleLogin = () => {
     if (!email || !password) {
-      alert("Please enter all required fields");
+      ToastAndroid.show("Please enter all required fields", ToastAndroid.SHORT);
     }
+    const data = {
+      email: email,
+      password: password,
+    };
+    axios
+      .post(`${baseUrl}/login`, data)
+      .then((response) => {
+        if (response.status === 200) {
+          ToastAndroid.show("Login successfully", ToastAndroid.SHORT);
+        }
+        ToastAndroid.show("Login successful", ToastAndroid.SHORT);
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          ToastAndroid.show("Invalid Email & Password", ToastAndroid.SHORT);
+        }
+      });
   };
   return (
     <SafeAreaView className="flex-1 items-center">

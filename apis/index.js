@@ -40,9 +40,9 @@ const User = require("./models/user");
 const Post = require("./models/post");
 
 app.post("/register", async (req, res) => {
-  debugger;
   try {
     const { name, email, password } = req.body;
+    console.log("req.body", req.body);
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -62,7 +62,10 @@ app.post("/register", async (req, res) => {
     // send the verification user email
     sendVerificationEmail(newUser.email, newUser.verificationToken);
 
-    res.status(201).json({ message: "user registered successfully" });
+    res.status(200).json({
+      message: "user registered successfully",
+      verificationToken: newUser.verificationToken,
+    });
   } catch (error) {
     console.log("error registering user", error);
     res.status(500).json({ message: "error registering user" });
@@ -113,22 +116,24 @@ app.get("/verify/:token", async () => {
   }
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = User.findOne({ email });
-
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid Email" });
     }
     if (user.password !== password) {
       return res.status(400).json({ message: "Invalid Password" });
     }
-
+    const secretKey = "iadiashdioashdiuahdiaudhiasuoh";
     const token = jwt.sign({ userId: user._id }, secretKey);
     return res.status(200).json({ token });
   } catch (error) {
-    console.log("login failed ", error);
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 });

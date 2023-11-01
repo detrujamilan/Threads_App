@@ -6,7 +6,7 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
-  Alert,
+  ToastAndroid,
 } from "react-native";
 import React, { useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
@@ -21,24 +21,27 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
-  const handleRegister = () => {
-    const user = {
+  const handleRegister = async () => {
+    const data = {
       name: isName,
       email: email,
       password: password,
     };
     axios
-      .post("http://localhost:3000/register", JSON.stringify(user))
+      .post(`${baseUrl}/register`, data)
       .then((response) => {
-        console.log(response);
-        Alert.alert(
-          "Registration SuccessFully",
-          "you have successfully registered"
-        );
+        if (response.status === 200) {
+          ToastAndroid.show("Registration Successful", ToastAndroid.SHORT);
+        }
+        if (response.status === 400) {
+          ToastAndroid.show("user already registered", ToastAndroid.SHORT);
+        }
+        setIsName("");
+        setPassword("");
+        setEmail("");
       })
       .catch((error) => {
-        console.log(error);
-        Alert.alert("Registration FailureFully", "you have failed to register");
+        ToastAndroid.show(`Registration failed ${error}`, ToastAndroid.SHORT);
       });
   };
   return (
