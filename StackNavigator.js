@@ -4,13 +4,16 @@ import Login from "./screens/Login";
 import Register from "./screens/Register";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/HomeScreen";
-import { Entypo , AntDesign } from '@expo/vector-icons';
+import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+import ActivityScreen from "./screens/ActivityScreen";
+import ThereadsScreen from "./screens/ThereadsScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
   const Tab = createNativeStackNavigator();
 
-  const ButtonTabs = () => {
+  function ButtonTabs() {
     return (
       <Tab.Navigator>
         <Tab.Screen
@@ -28,9 +31,70 @@ const StackNavigator = () => {
               ),
           }}
         />
+        <Tab.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: "Profile",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="person" size={24} color="black" />
+              ) : (
+                <Ionicons name="ios-person-outline" size={24} color="black" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="Register"
+          component={Register}
+          options={{
+            tabBarLabel: "Register",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Entypo name="home" size={24} color="black" />
+              ) : (
+                <AntDesign name="home" size={24} color="black" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="ActivityScreen"
+          component={ActivityScreen}
+          options={{
+            tabBarLabel: "ActivityScreen",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <AntDesign name="heart" size={24} color="black" />
+              ) : (
+                <AntDesign name="hearto" size={24} color="black" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="ThereadsScreen"
+          component={ThereadsScreen}
+          options={{
+            tabBarLabel: "ThereadsScreen",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="create" size={24} color="black" />
+              ) : (
+                <Ionicons name="create" size={24} color="black" />
+              ),
+          }}
+        />
       </Tab.Navigator>
     );
-  };
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -45,8 +109,8 @@ const StackNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Home"
-          component={HomeScreen}
+          name="Main"
+          component={ButtonTabs}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

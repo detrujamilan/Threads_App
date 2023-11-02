@@ -21,12 +21,12 @@ const Login = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const checkLocalStorage = () => {
+    const checkLocalStorage = async () => {
       try {
-        const token = AsyncStorage.getItem("token");
+        const token = await AsyncStorage.getItem("token");
         if (token) {
           setTimeout(() => {
-            navigation.replace("Home");
+            navigation.replace("Main");
           }, 400);
         }
       } catch (error) {
