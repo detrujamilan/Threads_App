@@ -8,10 +8,11 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import ActivityScreen from "./screens/ActivityScreen";
 import ThereadsScreen from "./screens/ThereadsScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
-  const Tab = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
 
   function ButtonTabs() {
     return (
@@ -87,7 +88,7 @@ const StackNavigator = () => {
               focused ? (
                 <Ionicons name="create" size={24} color="black" />
               ) : (
-                <Ionicons name="create" size={24} color="black" />
+                <Ionicons name="create-outline" size={24} color="black" />
               ),
           }}
         />

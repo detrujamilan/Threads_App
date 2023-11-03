@@ -1,12 +1,12 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, SafeAreaView } from "react-native";
+import React from "react";
 
 const ProfileScreen = () => {
   return (
-    <View>
-      <Text>ProfileScreen</Text>
-    </View>
-  )
-}
+    <SafeAreaView>
+        <Text>ProfileScreen</Text>
+    </SafeAreaView>
+  );
+};
 
-export default ProfileScreen
+export default ProfileScreen;
