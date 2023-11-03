@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
+const jwtDecode = require("jwt-decode");
 
 const app = express();
 
@@ -14,7 +15,6 @@ app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
 const jwt = require("jsonwebtoken");
 
 mongoose
@@ -25,15 +25,15 @@ mongoose
       useUnifiedTopology: true,
     }
   )
-  .then((response) => {
+  .then(() => {
     console.log("connect");
   })
-  .catch((error) => {
+  .catch((err) => {
     console.log("error connecting to server");
   });
 
 app.listen(port, () => {
-  console.log(`port connected ${port}`);
+  console.log(`server is running on port ${port}`);
 });
 
 const User = require("./models/user");
@@ -42,37 +42,21 @@ const Post = require("./models/post");
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    console.log("req.body", req.body);
-    const existingUser = await User.findOne({ email });
 
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "user already exists" });
+      return res.status(400).json({ message: "Email already registered" });
     }
 
-    const newUser = new User({
-      name,
-      email,
-      password,
-    });
+    const newUser = new User({ name, email, password });
 
-    const secretKey = "vhdshsgkhsgkdsgsdkljgskdigslkjdsl";
-    const token = jwt.sign(
-      {
-        userId: newUser._id,
-        email: newUser.email,
-      },
-      secretKey,
-      { expiresIn: "1day" }
-    );
+    newUser.verificationToken = crypto.randomBytes(20).toString("hex");
 
     await newUser.save();
 
-    sendVerificationEmail(newUser.email, token);
+    sendVerificationEmail(newUser.email, newUser.verificationToken);
 
-    res.status(200).json({
-      message: "user registered successfully",
-      verificationToken: token,
-    });
+    res.status(200).json({ message: "Registration successful" });
   } catch (error) {
     console.log("error registering user", error);
     res.status(500).json({ message: "error registering user" });
@@ -91,7 +75,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
   });
 
   const mailOptions = {
-    form: "thre.app",
+    form: "threads.com",
     to: email,
     subject: "Email Verification",
     text: `Please clike the following  link to verify your email http://localhost:3000/verify/${verificationToken}`,
@@ -116,12 +100,19 @@ app.get("/verify/:token", async () => {
     user.verified = true;
     user.verificationToken = undefined;
     await user.save();
-    res.status(200).json({ message: "email verified" });
+    res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     console.log("error getting token", error);
-    res.status(500).json({ message: "email verification failed" });
+    res.status(500).json({ message: "Email verification failed" });
   }
 });
+
+const generateSecretKey = () => {
+  const secretKey = crypto.randomBytes(32).toString("hex");
+  return secretKey;
+};
+
+const secretKey = generateSecretKey();
 
 app.post("/login", async (req, res) => {
   try {
@@ -134,14 +125,19 @@ app.post("/login", async (req, res) => {
     if (user.password !== password) {
       return res.status(400).json({ message: "Invalid Password" });
     }
-    const secretKey = "iadiashdioashdiuahdiaudhiasuoh";
     const token = jwt.sign({ userId: user._id }, secretKey);
-    return res.status(200).json({ message :"login successfully", token });
+
+    const decodeToken = jwt.verify(token, secretKey);
+
+    return res
+      .status(200)
+      .json({
+        message: "Login successfully",
+        token,
+        userId: decodeToken.userId,
+      });
   } catch (error) {
-    return res.status(500).json({
-      status: "error",
-      message: error.message,
-    });
+    res.status(500).json({ message: "Login failed", error: error });
   }
 });
 
@@ -149,11 +145,11 @@ app.get("/user/:userId", (req, res) => {
   try {
     const userId = req.params.userId;
     User.find({ _id: { $ne: userId } })
-      .then((user) => {
-        res.status(200).json(user);
+      .then((users) => {
+        res.status(200).json(users);
       })
       .catch((error) => {
-        console.log("error getting user", error);
+        console.log("Error", error);
         res.status(500).json({ message: "error" });
       });
   } catch (error) {

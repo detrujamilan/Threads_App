@@ -4,10 +4,10 @@ import Login from "./screens/Login";
 import Register from "./screens/Register";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/HomeScreen";
-import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+import {  AntDesign, Ionicons } from "@expo/vector-icons";
 import ActivityScreen from "./screens/ActivityScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import CreateScreen  from "./screens/CreateScreen";
+import CreateScreen from "./screens/CreateScreen";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 

@@ -1,22 +1,16 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
-  ToastAndroid,
-} from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { jwtDecode } from "jwt-decode";
+import jwt from "jwt-decode";
 import axios from "axios";
 import { baseUrl } from "../utils/utils";
 import { UserType } from "../UserContext";
+import UserList from "../UserList";
 
 const ActivityScreen = () => {
   const [selectedButton, setSelectedButton] = useState("People");
-  const [content, setContent] = useState("");
-  const [users, setUsers] = useState("");
-  const { userId, setUserId } = useContext(UserType);
+  const [users, setUsers] = useState([]);
+  const [userId,setUserId] = useState("")
 
   const handleSelectedButton = (buttonName) => {
     setSelectedButton(buttonName);
@@ -24,24 +18,24 @@ const ActivityScreen = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const token = await AsyncStorage.getItem("token");
-      console.log(token);
-      const decodedToken = jwtDecode(token, { header: true });
-      const userId = decodedToken.userId;
-      setUserId(userId);
-
-      axios
-        .get(`${baseUrl}/user/${userId}`)
-        .then((response) => {
-          console.log(response);
-          setUsers(response.data);
-        })
-        .catch((error) => {
-          console.log("error", error);
-        });
+      const userId = await AsyncStorage.getItem("userId");
+      
+      if (userId) {
+        setUserId(userId);
+        axios
+          .get(`${baseUrl}/user/${userId}`)
+          .then((response) => {
+            console.log("response",response.data);
+            setUsers(response.data);
+          })
+          .catch((error) => {
+            console.log("error", error);
+          });
+      }
     };
     return () => fetchUsers();
   }, []);
+
   return (
     <SafeAreaView className="mt-7">
       <View className="p-[10px]">
@@ -89,6 +83,15 @@ const ActivityScreen = () => {
               Request
             </Text>
           </TouchableOpacity>
+        </View>
+        <View>
+          <Text className="pt-5">
+            {
+              users.map((item,id)=>{
+                return <UserList item={item}  key={id}/>
+              })
+            }
+          </Text>
         </View>
       </View>
     </SafeAreaView>

@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
   ToastAndroid,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
@@ -26,7 +27,7 @@ const Login = () => {
         const token = await AsyncStorage.getItem("token");
         if (token) {
           setTimeout(() => {
-            navigation.goBack("Main");
+            navigation.navigate("Main");
           }, 400);
         }
       } catch (error) {
@@ -37,27 +38,29 @@ const Login = () => {
   }, []);
 
   const handleLogin = () => {
-    if (!email || !password) {
-      ToastAndroid.show("Please enter all required fields", ToastAndroid.SHORT);
-    }
-    const bodyData = {
+    // if (!email || !password) {
+    //   ToastAndroid.show("Please enter all required fields", ToastAndroid.SHORT);
+    // }
+    const user = {
       email: email,
       password: password,
     };
     axios
-      .post(`${baseUrl}/login`, bodyData)
+      .post(`${baseUrl}/login`, user)
       .then((response) => {
-        console.log(response);
         if (response.status === 200) {
           ToastAndroid.show("Login successfully", ToastAndroid.SHORT);
         }
         const token = response.data.token;
+        const userId = response.data.userId;
         AsyncStorage.setItem("token", token);
-        navigation.navigate("Home");
+        AsyncStorage.setItem("userId", userId);
+        navigation.navigate("Main");
       })
       .catch((error) => {
         console.log(error);
-        ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
+        Alert.alert(error.message);
+        ToastAndroid.show("error.response.data.message", ToastAndroid.SHORT);
       });
   };
 
