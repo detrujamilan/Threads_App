@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 
 const app = express();
 
-const port = 3000;
+const port = 3003;
 
 const cors = require("cors");
 
@@ -55,16 +55,23 @@ app.post("/register", async (req, res) => {
       password,
     });
 
-    newUser.verificationToken = crypto.randomBytes(20).toString("hex");
+    const secretKey = "vhdshsgkhsgkdsgsdkljgskdigslkjdsl";
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        email: newUser.email,
+      },
+      secretKey,
+      { expiresIn: "1day" }
+    );
 
     await newUser.save();
 
-    // send the verification user email
-    sendVerificationEmail(newUser.email, newUser.verificationToken);
+    sendVerificationEmail(newUser.email, token);
 
     res.status(200).json({
       message: "user registered successfully",
-      verificationToken: newUser.verificationToken,
+      verificationToken: token,
     });
   } catch (error) {
     console.log("error registering user", error);
@@ -129,11 +136,28 @@ app.post("/login", async (req, res) => {
     }
     const secretKey = "iadiashdioashdiuahdiaudhiasuoh";
     const token = jwt.sign({ userId: user._id }, secretKey);
-    return res.status(200).json({ token });
+    return res.status(200).json({ message :"login successfully", token });
   } catch (error) {
     return res.status(500).json({
       status: "error",
       message: error.message,
     });
+  }
+});
+
+app.get("/user/:userId", (req, res) => {
+  try {
+    const userId = req.params.userId;
+    User.find({ _id: { $ne: userId } })
+      .then((user) => {
+        res.status(200).json(user);
+      })
+      .catch((error) => {
+        console.log("error getting user", error);
+        res.status(500).json({ message: "error" });
+      });
+  } catch (error) {
+    console.log("error getting user", error);
+    res.status(403).json({ message: "error while getting user" });
   }
 });

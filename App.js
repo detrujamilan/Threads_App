@@ -1,10 +1,12 @@
-import { SafeAreaView, Text, View } from "react-native";
-import StackNavigator from  "./StackNavigator"
+import StackNavigator from "./StackNavigator";
+import { UserContext } from "./UserContext";
 
 export default function App() {
   return (
     <>
-      <StackNavigator/>
+     <UserContext>
+        <StackNavigator />
+      </UserContext>
     </>
   );
 }

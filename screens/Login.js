@@ -26,7 +26,7 @@ const Login = () => {
         const token = await AsyncStorage.getItem("token");
         if (token) {
           setTimeout(() => {
-            navigation.replace("Main");
+            navigation.goBack("Main");
           }, 400);
         }
       } catch (error) {
@@ -47,6 +47,7 @@ const Login = () => {
     axios
       .post(`${baseUrl}/login`, bodyData)
       .then((response) => {
+        console.log(response);
         if (response.status === 200) {
           ToastAndroid.show("Login successfully", ToastAndroid.SHORT);
         }
@@ -55,6 +56,7 @@ const Login = () => {
         navigation.navigate("Home");
       })
       .catch((error) => {
+        console.log(error);
         ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
       });
   };

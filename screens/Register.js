@@ -14,6 +14,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { baseUrl } from "../utils/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Register = () => {
   const [isName, setIsName] = useState("");
@@ -36,11 +37,15 @@ const Register = () => {
         if (response.status === 400) {
           ToastAndroid.show("user already registered", ToastAndroid.SHORT);
         }
+        const token = response.data.verificationToken;
+        AsyncStorage.setItem("token", token);
+        navigation.navigate("Main")
         setIsName("");
         setPassword("");
         setEmail("");
       })
       .catch((error) => {
+        console.log(error);
         ToastAndroid.show(`Registration failed ${error}`, ToastAndroid.SHORT);
       });
   };

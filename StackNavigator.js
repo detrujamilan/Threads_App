@@ -6,8 +6,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/HomeScreen";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import ActivityScreen from "./screens/ActivityScreen";
-import ThereadsScreen from "./screens/ThereadsScreen";
 import ProfileScreen from "./screens/ProfileScreen";
+import CreateScreen  from "./screens/CreateScreen";
+
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const StackNavigator = () => {
@@ -26,9 +27,41 @@ const StackNavigator = () => {
             headerShown: false,
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Entypo name="home" size={24} color="black" />
+                <Ionicons name="home" size={24} color="black" />
               ) : (
-                <AntDesign name="home" size={24} color="black" />
+                <Ionicons name="home-outline" size={24} color="black" />
+              ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Create"
+          component={CreateScreen}
+          options={{
+            tabBarLabel: "Create",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="ios-create" size={24} color="black" />
+              ) : (
+                <Ionicons name="ios-create-outline" size={24} color="black" />
+              ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Activity"
+          component={ActivityScreen}
+          options={{
+            tabBarLabel: "Activity",
+            tabBarLabelStyle: { color: "black" },
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <AntDesign name="heart" size={24} color="black" />
+              ) : (
+                <AntDesign name="hearto" size={24} color="black" />
               ),
           }}
         />
@@ -44,51 +77,6 @@ const StackNavigator = () => {
                 <Ionicons name="person" size={24} color="black" />
               ) : (
                 <Ionicons name="ios-person-outline" size={24} color="black" />
-              ),
-          }}
-        />
-        <Tab.Screen
-          name="Register"
-          component={Register}
-          options={{
-            tabBarLabel: "Register",
-            tabBarLabelStyle: { color: "black" },
-            headerShown: false,
-            tabBarIcon: ({ focused }) =>
-              focused ? (
-                <Entypo name="home" size={24} color="black" />
-              ) : (
-                <AntDesign name="home" size={24} color="black" />
-              ),
-          }}
-        />
-        <Tab.Screen
-          name="ActivityScreen"
-          component={ActivityScreen}
-          options={{
-            tabBarLabel: "ActivityScreen",
-            tabBarLabelStyle: { color: "black" },
-            headerShown: false,
-            tabBarIcon: ({ focused }) =>
-              focused ? (
-                <AntDesign name="heart" size={24} color="black" />
-              ) : (
-                <AntDesign name="hearto" size={24} color="black" />
-              ),
-          }}
-        />
-        <Tab.Screen
-          name="ThereadsScreen"
-          component={ThereadsScreen}
-          options={{
-            tabBarLabel: "ThereadsScreen",
-            tabBarLabelStyle: { color: "black" },
-            headerShown: false,
-            tabBarIcon: ({ focused }) =>
-              focused ? (
-                <Ionicons name="create" size={24} color="black" />
-              ) : (
-                <Ionicons name="create-outline" size={24} color="black" />
               ),
           }}
         />
