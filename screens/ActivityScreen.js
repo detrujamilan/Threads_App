@@ -4,11 +4,10 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  Pressable,
+  ToastAndroid,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwt from "jwt-decode";
 import axios from "axios";
 import { baseUrl } from "../utils/utils";
 
@@ -16,7 +15,6 @@ const ActivityScreen = () => {
   const [selectedButton, setSelectedButton] = useState("People");
   const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
-  console.log("userId",userId)
   const [requsetSent, setRequsetSent] = useState(false);
 
   const handleSelectedButton = (buttonName) => {
@@ -56,6 +54,28 @@ const ActivityScreen = () => {
       });
       if (response.ok) {
         setRequsetSent(true);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const handleUnFollow = async (selectedUserId) => {
+    try {
+      const response = await fetch(`${baseUrl}/users/unfollow`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          loggedUserId: userId,
+          targetUserId: selectedUserId,
+        }),
+      });
+
+      if (response.ok) {
+        setRequsetSent(false);
+        ToastAndroid.show("unfollwed successfully", ToastAndroid.SHORT);
       }
     } catch (error) {
       console.log("error", error);
@@ -114,6 +134,7 @@ const ActivityScreen = () => {
           {users?.map((item, id) => {
             return (
               <>
+                {console.log("item", item)}
                 <View
                   key={id}
                   className="flex-row px-2 items-center justify-between py-2"
@@ -127,14 +148,14 @@ const ActivityScreen = () => {
                   </View>
 
                   {requsetSent || item?.followers?.includes(userId) ? (
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleUnFollow(item._id)}>
                       <Text className="cursor-pointer  px-8 py-3 border-[#D0D0D0] text-black bg-opacity-80  rounded-sm hover:bg-opacity-70 transition font-semibold shadow-md">
                         Following
                       </Text>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
-                      onPress={() => handleFollow(userId, item.id)}
+                      onPress={() => handleFollow(userId, item._id)}
                     >
                       <Text className="cursor-pointer  px-8 py-3 border-[#D0D0D0] text-black bg-opacity-80  rounded-sm hover:bg-opacity-70 transition font-semibold shadow-md">
                         Follow

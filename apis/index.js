@@ -117,6 +117,7 @@ const secretKey = generateSecretKey();
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(email, password);
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -126,6 +127,7 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid Password" });
     }
     const token = jwt.sign({ userId: user._id }, secretKey);
+    console.log(token);
 
     const decodeToken = jwt.verify(token, secretKey);
 
@@ -170,7 +172,7 @@ app.post("/follow", async (req, res) => {
       .json({ error: error, message: " error in following user " });
   }
 });
-app.post("/user/unfollow", async (req, res) => {
+app.post("/users/unfollow", async (req, res) => {
   const { loggedUserId, targetUserId } = req.body;
   try {
     const userId = user.findByIdAndUpdate(targetUserId, {
@@ -178,8 +180,106 @@ app.post("/user/unfollow", async (req, res) => {
     });
     res.status(200).json({ message: "unFollowing successfully" });
   } catch (error) {
+    res.status(500).json({ error: error, message: " error unFollowing user " });
+  }
+});
+
+app.post("/create-post", async (req, res) => {
+  try {
+    const { content, userId } = req.body;
+    console.log(content);
+
+    const newPostData = {
+      user: userId,
+    };
+    if (content) {
+      newPostData.content = content;
+    }
+    const newPost = new Post(newPostData);
+    console.log(newPost);
+    await newPost.save();
+    res.status(200).json({ message: "post saved succesfully" });
+  } catch (error) {
+    res.status(500).json({ error: error, message: "post creation failed" });
+  }
+});
+
+app.put("/post/:postId/:userId/like", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const postId = req.params.postId;
+
+    const post = await Post.findById(postId).populate("user", "name");
+    const updatedPost = await Post.findByIdAndUpdate(postId, {
+      $addToSet: {
+        likes: userId,
+        new: true,
+      },
+    });
+    if (!updatedPost) {
+      return res.status(404).json({ message: "post not found" });
+    }
+    updatedPost.user = post.user;
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.log(error);
     res
-      .status(500)
-      .json({ error: error, message: " error unFollowing user " });
+      .status(404)
+      .json({ error: error, message: "an error occurred while liking " });
+  }
+});
+
+// unlike post
+
+app.put("/post/:postId/:userId/unlike", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const postId = req.params.postId;
+
+    const post = await Post.findById(postId).populate("user", "name");
+    const updatedPost = await Post.findByIdAndUpdate(postId, {
+      $pull: {
+        likes: userId,
+        new: true,
+      },
+    });
+    if (!updatedPost) {
+      return res.status(404).json({ message: "post not found" });
+    }
+    updatedPost.user = post.user;
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(404)
+      .json({ error: error, message: "an error occurred while liking " });
+  }
+});
+
+// get all post
+
+app.get("/get-posts", async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+    res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "an error occurred while getting posts" });
+  }
+});
+
+app.get("/profile/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    return res.status(200).json({ user, message: "user found" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error getting user profile" });
   }
 });
