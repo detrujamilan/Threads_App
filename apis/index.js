@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const jwtDecode = require("jwt-decode");
-
+const user = require("./models/user");
 const app = express();
 
 const port = 3003;
@@ -129,13 +129,11 @@ app.post("/login", async (req, res) => {
 
     const decodeToken = jwt.verify(token, secretKey);
 
-    return res
-      .status(200)
-      .json({
-        message: "Login successfully",
-        token,
-        userId: decodeToken.userId,
-      });
+    return res.status(200).json({
+      message: "Login successfully",
+      token,
+      userId: decodeToken.userId,
+    });
   } catch (error) {
     res.status(500).json({ message: "Login failed", error: error });
   }
@@ -155,5 +153,33 @@ app.get("/user/:userId", (req, res) => {
   } catch (error) {
     console.log("error getting user", error);
     res.status(403).json({ message: "error while getting user" });
+  }
+});
+
+// endpoint to follow particuler user
+app.post("/follow", async (req, res) => {
+  const { currentuserId, seletedUserId } = req.body;
+  try {
+    const userId = user.findByIdAndUpdate(seletedUserId, {
+      $push: { followers: currentuserId },
+    });
+    res.status(200).json({ message: "Following successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: error, message: " error in following user " });
+  }
+});
+app.post("/user/unfollow", async (req, res) => {
+  const { loggedUserId, targetUserId } = req.body;
+  try {
+    const userId = user.findByIdAndUpdate(targetUserId, {
+      $pull: { followers: loggedUserId },
+    });
+    res.status(200).json({ message: "unFollowing successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: error, message: " error unFollowing user " });
   }
 });

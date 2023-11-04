@@ -1,12 +1,9 @@
-import StackNavigator from "./StackNavigator";
-import { UserContext } from "./UserContext";
+import StackNavigator from "./components/StackNavigator";
 
 export default function App() {
   return (
     <>
-     <UserContext>
         <StackNavigator />
-      </UserContext>
     </>
   );
 }
